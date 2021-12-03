@@ -1,0 +1,25 @@
+---
+
+- hosts: 'box'
+  name: Setup Proxy
+  tasks: 
+  - name: Copying the proxy.conf file
+    copy: src=/etc/apt/apt.conf.d/proxy.conf dest=/etc/apt/apt.conf.d/proxy.conf
+  - name: Copying the CA Certificate
+    copy: src={{playbook_dir}}/ZscalerRootCertificate-2048-SHA256.crt/ dest=/usr/local/share/ca-certificates/zscalar.crt
+  - name: Update the newly added Certificate
+    command: 'update-ca-certificates --fresh'
+  - name: Create a docker.service.d directory
+    command: 'mkdir -p /etc/systemd/system/docker.service.d'
+  - name: Copying the Docker Proxy
+    copy: src=/etc/systemd/system/docker.service.d/http-proxy.conf dest=/etc/systemd/system/docker.service.d/http-proxy.conf
+  - name: Add Global Proxy Config
+    command: 'echo -en "\nexport http_proxy="10.252.0.180:8085"\nexport https_proxy="10.252.0.180:8085"\nexport ftp_proxy="10.252.0.180:8085"\n" >> /home/hltesting/.bashrc'
+
+- hosts: 'box'
+  name: Copy Binaries
+  tasks: 
+  - name: Copying the Docker binary files
+    copy: src={{playbook_dir}}/binaries/ dest=/usr/bin mode=a+x
+  - name: Start the docker-deamon
+    command: dockerd &

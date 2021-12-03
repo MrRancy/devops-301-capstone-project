@@ -1,0 +1,8 @@
+resource_group_name="blockchain-group"
+vnet_name="blockchain-group-vnet"
+nic_name="devops-nic"
+nic_ip_config_name="devops-configuration"
+vm_name="devops-VM"
+vm_size="Standard_B2ms"
+storage_os_disk="devops-osdiskspace"
+private_ip="10.0.183.245"
