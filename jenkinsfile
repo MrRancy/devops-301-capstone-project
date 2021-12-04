@@ -29,6 +29,6 @@ node {
 	}
 
 	stage('Docker Deployment') {
-		sh 'cd source-code; docker-compose up -d --build'
+		sh 'cd source-code; docker-compose up -d'
 	}
 }
