@@ -1,0 +1,20 @@
+--- 
+- 
+  hosts: all
+  tasks: 
+    - name: Copying the Source Code
+      become: true
+      copy: 
+        dest: /home/ubuntu
+        group: ubuntu
+        mode: 420
+        owner: ubuntu
+        src: "{{playbook_dir}}/../source-code"
+    - name: Install Node Modules
+      become: true 
+      command: chdir=/home/ubuntu/source-code npm i --save
+    - name: "Copying the source code"
+      become: true
+      command: "chdir=/home/ubuntu/source-code docker-compose up -d"
+      name: "Run Docker-compose"
+

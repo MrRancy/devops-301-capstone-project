@@ -28,7 +28,7 @@ node {
 		sh 'cd source-code; nodejsscan --directory `pwd`'
 	}
 
-	stage('Docker Deployment') {
-		sh 'cd source-code; docker-compose up -d'
+	stage('Deployment Playbook') {
+		sh 'cd automation; ansible-playbook --key-file=/root/.ssh/id_rsa -i ../infra/aws/hosts.ini -u ubuntu deploy.yml'
 	}
 }
