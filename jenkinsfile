@@ -5,11 +5,11 @@ node {
 	}
 
 	stage('Initiate Infra Creation') {
-		sh 'cd infra; terraform init'
+		sh 'cd infra/aws/; terraform init'
 	}
 
 	stage('Apply terraform config to azure') {
-		sh 'cd infra; terraform apply -var-file=variable.tfvars --auto-approve'
+		sh 'cd infra/aws/; terraform apply -var-file=variable.tfvars --auto-approve'
 	}
 
 	stage('Installing NPM Modules') {
