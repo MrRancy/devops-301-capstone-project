@@ -1,6 +1,4 @@
 node {
-  agent any
-
         tools {nodejs "nodejs"}	
 	stage('Git ChechOut') {
 		git branch: 'main', url: 'https://github.com/MrRancy/devops-301-capstone-project.git' 
