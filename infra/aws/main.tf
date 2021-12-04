@@ -30,13 +30,18 @@ resource "aws_instance" "testInstance" {
     type     = "ssh"
     user     = "ubuntu"
     host     = "${aws_instance.testInstance.public_ip}"
-    private_key = "${var.pvt_key_name}"
+    private_key = "${file(var.pvt_key_name)}"
   }
 }
 
 resource "null_resource" "ansible-main" { 
   provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu -i hosts.ini --private-key ${var.pvt_key_name} -e 'pub_key=${var.public_key_path}' ../../automation/playbook.yml"
+    command = <<EOT
+       > hosts.ini;
+       export ANSIBLE_HOST_KEY_CHECKING=False;
+       echo "${aws_instance.testInstance.public_ip}"|tee -a hosts.ini;
+       ansible-playbook --key-file=${var.pvt_key_name} -i hosts.ini -u ubuntu ../../automation/playbook.yml
+    EOT
   }
   depends_on = [aws_instance.testInstance]
 }
