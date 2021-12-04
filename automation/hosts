@@ -1,7 +1,0 @@
-[box]
-10.0.183.245
-
-[all:vars]
-ansible_python_interpreter=/usr/bin/python3
-ansible_ssh_user=hltesting
-ansible_ssh_pass=hltesting@123

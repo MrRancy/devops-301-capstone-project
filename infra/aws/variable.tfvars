@@ -1,0 +1,5 @@
+region="us-east-2"
+public_key_path="~/.ssh/id_rsa.pub"
+instance_ami="ami-020db2c14939a8efb"
+instance_type="t2.micro"
+environment_tag="Production"

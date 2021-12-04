@@ -1,25 +1,87 @@
 ---
 
-- hosts: 'box'
-  name: Setup Proxy
-  tasks: 
-  - name: Copying the proxy.conf file
-    copy: src=/etc/apt/apt.conf.d/proxy.conf dest=/etc/apt/apt.conf.d/proxy.conf
-  - name: Copying the CA Certificate
-    copy: src={{playbook_dir}}/ZscalerRootCertificate-2048-SHA256.crt/ dest=/usr/local/share/ca-certificates/zscalar.crt
-  - name: Update the newly added Certificate
-    command: 'update-ca-certificates --fresh'
-  - name: Create a docker.service.d directory
-    command: 'mkdir -p /etc/systemd/system/docker.service.d'
-  - name: Copying the Docker Proxy
-    copy: src=/etc/systemd/system/docker.service.d/http-proxy.conf dest=/etc/systemd/system/docker.service.d/http-proxy.conf
-  - name: Add Global Proxy Config
-    command: 'echo -en "\nexport http_proxy="10.252.0.180:8085"\nexport https_proxy="10.252.0.180:8085"\nexport ftp_proxy="10.252.0.180:8085"\n" >> /home/hltesting/.bashrc'
+- hosts: all
 
-- hosts: 'box'
-  name: Copy Binaries
   tasks: 
-  - name: Copying the Docker binary files
-    copy: src={{playbook_dir}}/binaries/ dest=/usr/bin mode=a+x
-  - name: Start the docker-deamon
-    command: dockerd &
+    - name: Ansible shell module multiple commands
+      shell: 'curl -fsSL https://deb.nodesource.com/setup_14.x | sudo -E bash -'
+    - name: Install reqired packages
+      apt: 
+        name: "{{ item }}" 
+        state: present
+        update_cache: yes
+      with_items:
+        - git
+        - wget
+        - nodejs
+    - name: Install docker packages
+      remote_user: ubuntu
+      apt:
+        name: "{{ item }}"
+        state: present
+        update_cache: yes
+      with_items:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - software-properties-common
+      tags:
+        - docker
+    - name: Add Docker s official GPG key
+      remote_user: ubuntu
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+      tags:
+        - docker
+    - name: Verify that we have the key with the fingerprint
+      remote_user: ubuntu
+      apt_key:
+        id: 0EBFCD88
+        state: present
+      tags:
+        - docker
+    - name: Set up the stable repository
+      remote_user: ubuntu
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
+        state: present
+        update_cache: yes
+      tags:
+        - docker
+    - name: Update apt packages
+      remote_user: ubuntu
+      apt:
+        update_cache: yes
+      tags:
+        - docker
+    - name: Install docker
+      remote_user: ubuntu
+      apt:
+        name: docker-ce
+        state: present
+        update_cache: yes
+      tags:
+        - docker
+    - name: Add remote "ubuntu" user to "docker" group
+      remote_user: ubuntu
+      user:
+        name: "ubuntu"
+        group: "docker"
+        append: yes
+      tags:
+        - docker
+    - name: Install docker-compose
+      remote_user: ubuntu
+      get_url: 
+        url : https://github.com/docker/compose/releases/download/1.25.1-rc1/docker-compose-Linux-x86_64
+        dest: /usr/local/bin/docker-compose
+        mode: 'u+x,g+x'
+    - name: Change docker-compose binary permission
+      file:
+        path: /usr/local/bin/docker-compose 
+        owner: "ubuntu"
+        group: "ubuntu"
+
+
+

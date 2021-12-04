@@ -1,0 +1,34 @@
+node {
+	
+	stage('Git ChechOut') {
+		git branch: 'main', url: 'https://github.com/MrRancy/devops-301-capstone-project.git' 
+	}
+
+	stage('Initiate Infra Creation') {
+		sh 'cd infra; terraform init'
+	}
+
+	stage('Apply terraform config to azure') {
+		sh 'cd infra; terraform apply -var-file=variable.tfvars --auto-approve'
+	}
+
+	stage('Installing NPM Modules') {
+		sh 'cd source-code; npm i'
+	}
+
+	stage('ESLint') {
+		sh 'cd source-code; npm run pretest'
+	}
+ 
+	stage('Mocha Test Cases') {
+		sh 'cd source-code; npm run test'
+	}
+
+	stage('Run SAST Analysis'){
+		sh 'cd source-code; nodejsscan --directory `pwd`'
+	}
+
+	stage('Docker Deployment') {
+		sh 'cd source-code; docker-compose up -d --build'
+	}
+}
