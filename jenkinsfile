@@ -29,6 +29,6 @@ node {
 	}
 
 	stage('Deployment Playbook') {
-		sh 'cd automation; ansible-playbook --key-file=/root/.ssh/id_rsa -i ../infra/aws/hosts.ini -u ubuntu deploy.yml'
+		sh 'cd source-code; rm -rf node_modules; cd automation; ansible-playbook --key-file=/root/.ssh/id_rsa -i ../infra/aws/hosts.ini -u ubuntu deploy.yml'
 	}
 }
